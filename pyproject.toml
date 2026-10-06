@@ -18,3 +18,6 @@ org = "mg.pdfstudio"
 product = "PDF Studio"
 company = "Fifaliana Sarobidy"
 copyright = "Copyright (C) 2026 Fifaliana Sarobidy"
+
+[tool.flet.flutter.pubspec.dependency_overrides]
+jni_flutter = "1.0.3"
