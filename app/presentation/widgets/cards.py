@@ -86,12 +86,15 @@ def hero_card(
     actions: list[ft.Control],
     leading: ft.Control | None = None,
     eyebrow: str | None = None,
+    compact: bool = False,
 ) -> ft.Container:
     """
     Bandeau d'accueil : dégradé, marque, accès rapides et points forts.
 
     ``leading`` remplace la pastille d'icône par un visuel (le logo) ;
-    ``eyebrow`` ajoute une petite ligne au-dessus du titre (salutation).
+    ``eyebrow`` ajoute une petite ligne au-dessus du titre (salutation) ;
+    ``compact`` (mobile) place les boutons à côté du logo et laisse le titre
+    prendre toute la largeur, au lieu de tout mettre sur une seule ligne.
     """
     on_hero = Palette.on_hero
     faint = lambda opacity: ft.Colors.with_opacity(opacity, on_hero)  # noqa: E731
@@ -110,18 +113,40 @@ def hero_card(
             ft.Text(eyebrow, size=13, weight=ft.FontWeight.W_500, color=faint(0.7))
         )
     heading += [
-        ft.Text(title, size=26, weight=ft.FontWeight.W_800, color=on_hero),
-        ft.Text(subtitle, size=13.5, color=faint(0.78)),
+        ft.Text(
+            title,
+            size=24 if compact else 26,
+            weight=ft.FontWeight.W_800,
+            color=on_hero,
+            max_lines=1,
+            overflow=ft.TextOverflow.ELLIPSIS,
+        ),
+        ft.Text(subtitle, size=13 if compact else 13.5, color=faint(0.78)),
     ]
-    brand = ft.Row(
-        [
-            mark,
-            ft.Column(heading, spacing=1, expand=True),
-            ft.Column(actions, spacing=0, tight=True),
-        ],
-        spacing=Space.md,
-        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-    )
+
+    if compact:
+        # Mobile : logo à gauche, boutons à droite, puis le titre sur toute la largeur.
+        brand = ft.Column(
+            [
+                ft.Row(
+                    [mark, ft.Row(actions, spacing=0, tight=True)],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+                ft.Column(heading, spacing=2),
+            ],
+            spacing=Space.sm,
+        )
+    else:
+        brand = ft.Row(
+            [
+                mark,
+                ft.Column(heading, spacing=1, expand=True),
+                ft.Column(actions, spacing=0, tight=True),
+            ],
+            spacing=Space.md,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
 
     chips = ft.Row(
         [
@@ -165,7 +190,7 @@ def hero_card(
                     bgcolor=faint(0.05),
                 ),
                 ft.Container(
-                    padding=Space.lg,
+                    padding=Space.md if compact else Space.lg,
                     content=ft.Column([brand, chips], spacing=Space.md),
                 ),
             ]

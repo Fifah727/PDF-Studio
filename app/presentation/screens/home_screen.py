@@ -10,7 +10,7 @@ from typing import Callable, NamedTuple
 
 import flet as ft
 
-from app import APP_NAME,COPYRIGHT_YEAR, __version__
+from app import APP_NAME, COPYRIGHT_YEAR, __version__
 from app.presentation.screens.base import content_width
 from app.presentation.system import reveal_in_folder
 from app.presentation.theme import Palette, Space
@@ -486,7 +486,7 @@ def build_home(
         )
 
     desktop = not (page.web or page.platform.is_mobile())
-    logo_height = 120 if desktop else 84
+    logo_height = 120 if desktop else 64
     animation = lottie(LOTTIE_SRC, logo_height, width=logo_height)
     mark, _pages = logo_fan(scale=0.72, on_dark=True)
     header = hero_card(
@@ -502,6 +502,7 @@ def build_home(
             hero_button(ft.Icons.INFO_OUTLINE, "À propos", "/a-propos"),
         ],
         leading=ft.Container(content=animation or mark, on_click=go("/a-propos"), tooltip="À propos"),
+        compact=not desktop,  # mobile : boutons à côté du logo, titre sur toute la largeur
     )
 
     state = {"query": "", "group": None}
@@ -645,24 +646,11 @@ def build_home(
     footer = ft.Container(
         padding=ft.Padding(left=0, right=0, top=Space.lg, bottom=Space.xl),
         alignment=ft.Alignment(0, 0),
-        content=ft.Column(
-            [
-                ft.Row(
-                    [
-                        ft.Text(
-                                       f"© {COPYRIGHT_YEAR} PDF Studio",
-                                       size=12,
-                                       color=Palette.ink_muted,
-                                       text_align=ft.TextAlign.CENTER,
-                                   ),
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    spacing=6,
-                    wrap=True,
-                )
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=Space.sm,
+        content=ft.Text(
+            f"© {COPYRIGHT_YEAR} {APP_NAME}",
+            size=12,
+            color=Palette.ink_muted,
+            text_align=ft.TextAlign.CENTER,
         ),
     )
 
@@ -672,7 +660,12 @@ def build_home(
             spacing=Space.md,
             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
         ),
-        padding=ft.Padding(left=Space.lg, right=Space.lg, top=Space.lg, bottom=0),
+        padding=ft.Padding(
+            left=Space.lg if desktop else Space.md,
+            right=Space.lg if desktop else Space.md,
+            top=Space.lg,
+            bottom=0,
+        ),
         width=content_width(page),
     )
 
