@@ -10,35 +10,36 @@ on:
           - android
           - windows
           - both
-        default: android
+        default: both
       build_number:
         description: "Numéro de build"
         type: string
         default: "1"
+      release:
+        description: "Publier dans les Releases GitHub ?"
+        type: boolean
+        default: false
+      tag:
+        description: "Tag de la release (ex : v1.3.0), requis si publication"
+        type: string
+        default: ""
 
 jobs:
   build-android:
     if: inputs.target == 'android' || inputs.target == 'both'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
       - name: Build APK
         run: echo y | flet build apk --build-number ${{ inputs.build_number }} --verbose
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: PDF-Studio-APK
           path: build/apk/*.apk
@@ -50,25 +51,50 @@ jobs:
       PYTHONUTF8: "1"
       PYTHONIOENCODING: utf-8
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
       - name: Build Windows
         run: |
           "y" | flet build windows --build-number ${{ inputs.build_number }} --verbose
-
-      - name: Upload Windows build
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: PDF-Studio-Windows
           path: build/windows
+
+  release:
+    needs: [build-android, build-windows]
+    if: >-
+      ${{ !cancelled() && inputs.release && inputs.tag != ''
+      && !contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Télécharger les builds
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Préparer les fichiers
+        run: |
+          mkdir -p release-files
+          if [ -d artifacts/PDF-Studio-APK ]; then
+            cp artifacts/PDF-Studio-APK/*.apk release-files/PDF-Studio.apk
+          fi
+          if [ -d artifacts/PDF-Studio-Windows ]; then
+            (cd artifacts/PDF-Studio-Windows && zip -r ../../release-files/PDF-Studio-Windows.zip .)
+          fi
+          ls -lh release-files
+
+      - name: Publier la release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: PDF Studio ${{ inputs.tag }}
+          files: release-files/*
