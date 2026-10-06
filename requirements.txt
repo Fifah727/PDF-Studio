@@ -2,6 +2,6 @@
 # Versions épinglées : celles avec lesquelles l'application a été testée.
 flet[all]==1.0.3
 pypdf==5.9.0
-Pillow>=12.2.0
+Pillow==12.2.0
 # Requis par pypdf pour le chiffrement/déchiffrement AES (outil « Mot de passe »).
 cryptography>=43
