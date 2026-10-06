@@ -1,0 +1,7 @@
+# Dépendances d'exécution et de développement (flet run).
+# Versions épinglées : celles avec lesquelles l'application a été testée.
+flet[all]==1.0.3
+pypdf==5.9.0
+Pillow==12.1.1
+# Requis par pypdf pour le chiffrement/déchiffrement AES (outil « Mot de passe »).
+cryptography>=43

@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8
+# Rendu des PDF pour les tests visuels (scan, filigrane) ; non requis à l'exécution.
+pypdfium2>=4
