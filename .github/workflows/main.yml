@@ -23,7 +23,13 @@ jobs:
 
       - name: Build APK
         run: |
-          yes | flet build apk --only-binary :all: --extra-index-url https://pypi.flet.dev --target /home/runner/work/PDF-Studio/PDF-Studio/build/site-packages/arm64-v8a "Pillow>=12.1.1" cryptography flet==1.0.3 pypdf==5.9.0
+          yes | flet build apk \
+            --build-number 1 \
+            --verbose
+        env:
+          PIP_ONLY_BINARY: ":all:"
+          PIP_EXTRA_INDEX_URL: "https://pypi.flet.dev"
+          PIP_TARGET: "/home/runner/work/PDF-Studio/PDF-Studio/build/site-packages/arm64-v8a"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
