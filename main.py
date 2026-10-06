@@ -29,6 +29,7 @@ def main(page: ft.Page) -> None:
 
     page.title = APP_NAME
     page.padding = 0
+    page.window.icon = "icon.png"
 
     if page.web:
         # Le navigateur ne donne pas accès au chemin des fichiers locaux :
