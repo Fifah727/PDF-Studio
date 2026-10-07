@@ -62,10 +62,29 @@ jobs:
       - name: Build Windows
         run: |
           "y" | flet build windows --build-number ${{ inputs.build_number }} --verbose
-      - uses: actions/upload-artifact@v4
+
+      - name: Installer Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Créer l'installateur
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem build/windows -Filter *.exe | Select-Object -First 1).Name
+          $version = (Select-String -Path pyproject.toml -Pattern '^version\s*=\s*"(.+)"').Matches[0].Groups[1].Value
+          Write-Host "Exécutable : $exe  |  Version : $version"
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppExe=$exe" "/DAppVersion=$version" installer\pdf-studio.iss
+
+      - name: Upload dossier Windows
+        uses: actions/upload-artifact@v4
         with:
           name: PDF-Studio-Windows
           path: build/windows
+
+      - name: Upload installateur
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Studio-Windows-Setup
+          path: installer/Output/PDF-Studio-Setup.exe
 
   release:
     needs: [build-android, build-windows]
@@ -89,6 +108,9 @@ jobs:
           fi
           if [ -d artifacts/PDF-Studio-Windows ]; then
             (cd artifacts/PDF-Studio-Windows && zip -r ../../release-files/PDF-Studio-Windows.zip .)
+          fi
+          if [ -d artifacts/PDF-Studio-Windows-Setup ]; then
+            cp artifacts/PDF-Studio-Windows-Setup/*.exe release-files/PDF-Studio-Setup.exe
           fi
           ls -lh release-files
 

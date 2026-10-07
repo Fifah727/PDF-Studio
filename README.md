@@ -21,10 +21,11 @@ avec **23 outils** disponibles hors connexion.
 
 Les versions compilées sont dans la page des [**Releases**](https://github.com/Fifah727/PDF-Studio/releases/latest) :
 
-| Plateforme | Fichier                                                                                                            | Installation                                                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| Android    | [`PDF-Studio.apk`](https://github.com/Fifah727/PDF-Studio/releases/latest/download/PDF-Studio.apk)                 | Autorisez l'installation depuis des sources inconnues, puis ouvrez l'APK. |
-| Windows    | [`PDF-Studio-Windows.zip`](https://github.com/Fifah727/PDF-Studio/releases/latest/download/PDF-Studio-Windows.zip) | **Extrayez tout le dossier** du ZIP, puis lancez le `.exe`.               |
+| Plateforme           | Fichier                                                                                                            | Installation                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Windows (recommandé) | [`PDF-Studio-Setup.exe`](https://github.com/Fifah727/PDF-Studio/releases/latest/download/PDF-Studio-Setup.exe)     | Lancez l'installateur et suivez les étapes. Aucun droit administrateur n'est nécessaire. |
+| Windows (portable)   | [`PDF-Studio-Windows.zip`](https://github.com/Fifah727/PDF-Studio/releases/latest/download/PDF-Studio-Windows.zip) | **Extrayez tout le dossier** du ZIP, puis lancez le `.exe`.                              |
+| Android              | [`PDF-Studio.apk`](https://github.com/Fifah727/PDF-Studio/releases/latest/download/PDF-Studio.apk)                 | Autorisez l'installation depuis des sources inconnues, puis ouvrez l'APK.                |
 
 > **Windows** : l'application n'est pas signée numériquement, donc SmartScreen peut afficher
 > « Windows a protégé votre PC ». Cliquez sur **Informations complémentaires**, puis **Exécuter quand même**.
@@ -87,7 +88,16 @@ flet build macos              # à lancer sous macOS
 
 Le workflow [`.github/workflows/main.yml`](.github/workflows/main.yml) se lance à la demande
 (**Actions → Build PDF Studio → Run workflow**) : choisissez `android`, `windows` ou `both`, et cochez
-« Publier » avec un tag (ex. `v1.3.0`) pour créer une Release contenant l'APK et le ZIP Windows.
+« Publier » avec un tag (ex. `v1.3.0`) pour créer une Release contenant l'APK, l'installateur Windows
+(`PDF-Studio-Setup.exe`) et le ZIP portable.
+
+L'installateur Windows est généré avec [Inno Setup](https://jrsoftware.org/isinfo.php) à partir de
+[`installer/pdf-studio.iss`](installer/pdf-studio.iss). Pour le construire en local, installez Inno Setup, lancez
+`flet build windows`, puis :
+
+```powershell
+ISCC.exe /DAppExe=<nom de l'exe dans build\windows> /DAppVersion=1.3.0 installer\pdf-studio.iss
+```
 
 ## Architecture
 
@@ -98,6 +108,7 @@ app/
   infrastructure/  pypdf, Pillow, écriture atomique, JSON (préférences, récents)
   presentation/    Flet : écrans, widgets, routeur, thème clair/sombre
 tests/             domaine, cas d'usage, images, interface (sans fenêtre)
+installer/         script Inno Setup de l'installateur Windows
 ```
 
 Principes à conserver :
