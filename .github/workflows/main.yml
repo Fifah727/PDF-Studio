@@ -38,7 +38,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Build APK
-        run: echo y | flet build apk --split-per-abi --build-number ${{ inputs.build_number }} --verbose
+        run: flet build apk --yes --split-per-abi --arch arm64-v8a armeabi-v7a --build-number ${{ inputs.build_number }} --verbose
+
       - uses: actions/upload-artifact@v4
         with:
           name: PDF-Studio-APK
